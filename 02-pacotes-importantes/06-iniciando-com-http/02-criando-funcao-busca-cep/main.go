@@ -22,7 +22,7 @@ type ViaCEP struct {
 func main() {
 	http.HandleFunc("/", BuscaCepHandler)
 
-	http.ListenAndServe(":8080", nil) //isso cria um http server
+	http.ListenAndServe(":8080", nil) //isso cria um http server - multiplexer
 }
 
 func BuscaCepHandler(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +42,7 @@ func BuscaCepHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
