@@ -36,6 +36,15 @@ func main() {
 	}
 
 	fmt.Println("Produto inserido com sucesso!")
+
+	product.Price = 7570.00
+	product.ID = "567037a6-5a8a-436c-b423-15d07c5b739c"
+	err = updateProduct(db, product)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Produto alterado com sucesso!")
 }
 
 func insertProduct(db *sql.DB, product *Product) error {
@@ -46,6 +55,21 @@ func insertProduct(db *sql.DB, product *Product) error {
 	defer stmt.Close()
 
 	_, err = stmt.Exec(product.ID, product.Name, product.Price) // ao inves do "_, err" da pra usar "res, err"(res = result)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func updateProduct(db *sql.DB, product *Product) error {
+	stmt, err := db.Prepare("UPDATE products SET name = ?, price = ? WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(product.Name, product.Price, product.ID)
 	if err != nil {
 		return err
 	}
