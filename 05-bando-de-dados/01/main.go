@@ -1,6 +1,12 @@
 ﻿package main
 
-import "github.com/google/uuid"
+import (
+	"database/sql"
+	"fmt"
+
+	_ "github.com/go-sql-driver/mysql" // _ blank identifier
+	"github.com/google/uuid"
+)
 
 type Product struct {
 	ID    string
@@ -17,5 +23,32 @@ func NewProduct(name string, price float64) *Product {
 }
 
 func main() {
+	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/goexpert")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
 
+	product := NewProduct("Notebook", 1899.99)
+	err = insertProduct(db, product)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Produto inserido com sucesso!")
+}
+
+func insertProduct(db *sql.DB, product *Product) error {
+	stmt, err := db.Prepare("INSERT INTO products(id, name, price) values(?,?,?)")
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(product.ID, product.Name, product.Price) // ao inves do "_, err" da pra usar "res, err"(res = result)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
