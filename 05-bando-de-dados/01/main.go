@@ -38,13 +38,22 @@ func main() {
 	fmt.Println("Produto inserido com sucesso!")
 
 	product.Price = 7570.00
-	product.ID = "567037a6-5a8a-436c-b423-15d07c5b739c"
+	product.ID = "751956d8-3e6d-40ba-9f2f-525b22113897"
 	err = updateProduct(db, product)
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Println("Produto alterado com sucesso!")
+
+	fmt.Println("=======================================")
+
+	p, err := selectProduct(db, product.ID)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Producto: %+v possui o valor de R$%.2f", p.Name, p.Price)
 }
 
 func insertProduct(db *sql.DB, product *Product) error {
@@ -75,4 +84,23 @@ func updateProduct(db *sql.DB, product *Product) error {
 	}
 
 	return nil
+}
+
+func selectProduct(db *sql.DB, id string) (*Product, error) {
+	//func selectProduct(ctx context.Context, db *sql.DB, id string) (*Product, error) {
+	stmt, err := db.Prepare("SELECT id, name, price FROM products WHERE id = ?")
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	var p Product
+
+	err = stmt.QueryRow(id).Scan(&p.ID, &p.Name, &p.Price)
+	// err = stmt.QueryRowContext(ctx, id).Scan(&p.ID, &p.Name, &p.Price) // usando context para determinar um tempo para retornar a consulta
+	if err != nil {
+		return nil, err
+	}
+
+	return &p, nil
 }
