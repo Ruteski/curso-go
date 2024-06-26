@@ -1,0 +1,2 @@
+﻿### Pasta onde tera arquivos especificos para o meu projeto, nao irá resolver nada para outras pessoas se baixarem ela
+#### Ex: calculo de uma antena para a modificacao que só existe no meu radio, onde cruza ondas curtas com talkabout
