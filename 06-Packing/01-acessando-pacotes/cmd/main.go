@@ -6,6 +6,15 @@ import (
 )
 
 func main() {
-	m := math.Math{A: 1, B: 2}
+	// m := math.NewMath(1, 2)
+	//=== ou assim \/
+	m := math.Math{}
+	//m2 := math.Math{}
+	m2 := math.NewMath(1, 2)
+
 	fmt.Println(m.Add())
+	fmt.Println(math.X)
+
+	fmt.Println(m2.Add())
+	fmt.Println(math.X)
 }
