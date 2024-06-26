@@ -75,7 +75,7 @@ func handlerCotacao(w http.ResponseWriter, r *http.Request) {
 
 func cotacaoDolar() (*Cotacao, error) {
 	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, time.Millisecond)
+	ctx, cancel := context.WithTimeout(ctx, 200*time.Millisecond)
 	defer cancel()
 
 	req, err := http.NewRequestWithContext(ctx, "GET", "https://economia.awesomeapi.com.br/json/last/USD-BRL", nil)
