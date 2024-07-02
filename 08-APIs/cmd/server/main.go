@@ -3,6 +3,10 @@
 import "apis/configs"
 
 func main() {
-	config := configs.NewConfig()
-	println(config.GetDBDriver())
+	config, err := configs.LoadConfig(".")
+	if err != nil {
+		panic(err)
+	}
+
+	println(config.DBDriver)
 }
