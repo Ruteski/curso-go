@@ -1,8 +1,8 @@
 ﻿package main
 
+import "apis/configs"
+
 func main() {
-	//config, err := configs.LoadConf(".env")
-	//if err != nil {
-	//	panic(err)
-	//}
+	config := configs.NewConfig()
+	println(config.GetDBDriver())
 }
