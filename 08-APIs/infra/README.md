@@ -1,0 +1,1 @@
+﻿# Manipular dados de banco de dados para serem trabalhados
