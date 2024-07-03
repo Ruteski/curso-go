@@ -9,7 +9,7 @@ import (
 )
 
 func TestCreateUser(t *testing.T) {
-	db, err := gorm.Open(sqlite.Open("file:memory"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -31,7 +31,7 @@ func TestCreateUser(t *testing.T) {
 }
 
 func TestFindByEmail(t *testing.T) {
-	db, err := gorm.Open(sqlite.Open("file:memory"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open("file::memory:"), &gorm.Config{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -46,7 +46,7 @@ func TestFindByEmail(t *testing.T) {
 	userFound, err := userDB.FindByEmail(user.Email)
 	assert.Nil(t, err)
 	assert.NotNil(t, userFound)
-	//	assert.Equal(t, user.ID, userFound.ID) // ??? pq esta dando erro ???
+	assert.Equal(t, user.ID, userFound.ID)
 	assert.Equal(t, user.Name, userFound.Name)
 	assert.Equal(t, user.Email, userFound.Email)
 	assert.NotNil(t, userFound.Password)
