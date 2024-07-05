@@ -1,0 +1,31 @@
+POST http://localhost:8000/products HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjAyMDE1MzEsInN1YiI6IjFhZmE4MjBiLWY3OWItNDZlYi1hOWQzLWVmNjE4OTFlYTUwMSJ9.MnWVcsM3gmBVw9Ab3kUtCwEMRFX6pxhDM6X-a7uAUOI
+
+{
+  "name": "My Product Jumbo",
+  "price": 10050
+}
+
+###
+
+GET http://localhost:8000/products HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjAyMDE0MjQsInN1YiI6IjFhZmE4MjBiLWY3OWItNDZlYi1hOWQzLWVmNjE4OTFlYTUwMSJ9.U9-a7vKKQepCCGQCq4em04s9Ex-hkZZY_xzGDEcJkQM
+
+###
+
+GET http://localhost:8000/products/a28756d6-8c4a-4935-84f3-936ef6afd688 HTTP/1.1
+
+###
+
+PUT http://localhost:8000/products/a28756d6-8c4a-4935-84f3-936ef6afd688 HTTP/1.1
+Content-Type: application/json
+
+{
+  "name": "My Product Updated",
+  "price": 200
+}
+
+###
+
+DELETE http://localhost:8000/products/a28756d6-8c4a-4935-84f3-936ef6afd688 HTTP/1.1
