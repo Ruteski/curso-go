@@ -1,4 +1,12 @@
-﻿package main
+﻿/*
+	Eu fiquei na dúvida do que era pra ser feito no desafio, abri tópico no fórum, mas não fui respondido,
+	não entendi se era pra fazer apenas a parte de multithreading com as especificações do desafio ou se
+   era pra fazer uma api com multithreading, o enunciado me deixou na duvida, entao fiz com a api, mas
+   caso não fosse pra ser api, também tenho o codigo apenas da parte de multithreading, se necessário
+   eu subo esse codigo também.
+*/
+
+package main
 
 import (
 	"fmt"
