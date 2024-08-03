@@ -15,7 +15,7 @@ func main() {
 
 	msgs := make(chan amqp.Delivery)
 
-	go rabbitmq.Consume(ch, msgs)
+	go rabbitmq.Consume(ch, msgs, "minhaFila")
 	for msg := range msgs {
 		fmt.Printf("Received a message: %s\n", msg.Body)
 		msg.Ack(false) // mensagem ja foi lida e nao é pra colocar ela na fila novamente
