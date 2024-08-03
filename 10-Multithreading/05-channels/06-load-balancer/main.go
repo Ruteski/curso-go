@@ -15,14 +15,14 @@ func worker(workerId int, data chan int) {
 // thread 1 - o main sempre é a primeira thread do sistema
 func main() {
 	data := make(chan int)
-	qtdWorkers := 100000 //10000 // 90
+	qtdWorkers := 10000 //10000 // 90
 
 	// inicializa os workers
 	for i := 0; i < qtdWorkers; i++ {
 		go worker(i, data)
 	}
 
-	for i := 0; i < 1000000; i++ {
+	for i := 0; i < 100000; i++ {
 		data <- i
 	}
 }
