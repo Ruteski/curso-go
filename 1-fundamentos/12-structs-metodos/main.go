@@ -34,7 +34,8 @@ func main() {
 		},
 	}
 
-	fmt.Println(lincoln, "\n")
+	fmt.Println(lincoln)
 	lincoln.Desativar()
+	fmt.Println(lincoln)
 
 }

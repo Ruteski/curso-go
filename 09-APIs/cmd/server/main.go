@@ -10,6 +10,7 @@ import (
 	"apis/internal/entity"
 	"apis/internal/infra/database"
 	"apis/internal/infra/webserver/handlers"
+	"fmt"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/jwtauth"
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -83,7 +84,8 @@ func main() {
 
 	r.Get("/docs/*", httpSwagger.Handler(httpSwagger.URL("http://localhost:8000/docs/doc.json")))
 
-	http.ListenAndServe(":8000", r)
+	fmt.Printf("Server listen port: %d🚀\n", 8000)
+	log.Fatal(http.ListenAndServe(":8000", r))
 }
 
 func LogRequest(next http.Handler) http.Handler {
