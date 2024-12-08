@@ -2,7 +2,7 @@ type Category {
   id: ID! # o ! indica que o campo é obrigadotrio
   name: String!
   description: String
-  courses: [Courses!]!
+  courses: [Course!]!
 }
 
 type Course {
