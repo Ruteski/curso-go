@@ -66,3 +66,11 @@ func (c *CategoryService) GetCategory(ctx context.Context, in *pb.CategoryGetReq
 
 	return categoryResponse, nil
 }
+
+//func (c *CategoryService) CreateCategoryStream(grpc.ClientStreamingServer[pb.CreateCategoryRequest, pb.CategoryList]) error {
+//	categories := &pb.CategoryList{}
+//
+//	for {
+//		category, err := stream.
+//	}
+//}
