@@ -54,12 +54,12 @@ func (c *Category) FindByCourseID(courseID string) (Category, error) {
 	var id, name, description string
 	err := c.db.QueryRow(
 		"SELECT c.id "+
-			"   , c.name "+
-			"	  , c.description "+
-			" FROM categories c "+
-			"INNER JOIN courses co "+
-			"   ON c.id = co.category_id "+
-			"WHERE co.id = $1", courseID).
+				"   , c.name "+
+				"	  , c.description "+
+				" FROM categories c "+
+				"INNER JOIN courses co "+
+				"   ON c.id = co.category_id "+
+				"WHERE co.id = $1", courseID).
 		Scan(&id, &name, &description)
 
 	if err != nil {
@@ -67,4 +67,14 @@ func (c *Category) FindByCourseID(courseID string) (Category, error) {
 	}
 
 	return Category{ID: id, Name: name, Description: description}, nil
+}
+
+func (c *Category) FindByID(id string) (Category, error) {
+	var name, description string
+	err := c.db.QueryRow("SELECT name, description FROM categories WHERE id = $1 ", id).
+		Scan(&name, &description)
+	if err != nil {
+		return Category{}, err
+	}
+	return Category{Name: name, Description: description}, nil
 }
