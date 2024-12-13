@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"io"
 	"os"
 )
 
@@ -39,6 +40,18 @@ func main() {
 		panic(err)
 	}
 	defer dir.Close()
+
+	for {
+		files, err := dir.Readdir(1)
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			fmt.Printf("Error reading directory: %s\n", err)
+			continue
+		}
+		uploadFile(files[0].Name())
+	}
 
 }
 
