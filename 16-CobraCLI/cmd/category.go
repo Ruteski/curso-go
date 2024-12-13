@@ -30,6 +30,18 @@ to quickly create a Cobra application.`,
 		id, _ := cmd.Flags().GetInt16("id")
 		fmt.Println("ID da categoria é: ", id)
 	},
+
+	PreRun: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Chamado antes do Run.")
+	},
+
+	PostRun: func(cmd *cobra.Command, args []string) {
+		fmt.Println("Chamado depois do Run.")
+	},
+
+	RunE: func(cmd *cobra.Command, args []string) error {
+		return fmt.Errorf("ocorreu um erro")
+	},
 }
 
 var category string
