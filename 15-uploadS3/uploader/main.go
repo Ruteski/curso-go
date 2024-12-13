@@ -43,6 +43,10 @@ func main() {
 	}
 	defer dir.Close()
 
+	// ,100 é pra criar buffer para o channel poder suportar ate 100 informacoes/structs antes de descarregar
+	// controla a quantidade de uploads ativos, no caso as goroutines criadas pra upload
+	uploadControl := make(chan struct{}, 100)
+
 	for {
 		files, err := dir.Readdir(1)
 		if err != nil {
@@ -53,20 +57,26 @@ func main() {
 			continue
 		}
 		wg.Add(1)
-		go uploadFile(files[0].Name())
+
+		// faz com que crie até 100 goroutines(uploads), depois ele nao deixa mais fazer upload, ate o channel esvaziar,
+		// criando assim um controle de quantidade de goroutines/uploads realizados simultaneamente
+		uploadControl <- struct{}{}
+
+		go uploadFile(files[0].Name(), uploadControl)
 	}
 	wg.Wait()
 }
 
-func uploadFile(filename string) {
+func uploadFile(filename string, uploadControl <-chan struct{}) {
 	defer wg.Done()
-	
+
 	completeFileName := fmt.Sprintf("./tmp/%s", filename)
 	fmt.Printf("Uploading file %s to bucket %s\n", completeFileName, s3Bucket)
 
 	f, err := os.Open(completeFileName)
 	if err != nil {
 		fmt.Printf("open file %s failed.\n", completeFileName)
+		<-uploadControl // esvazia o channel
 		return
 	}
 	defer f.Close()
@@ -79,8 +89,10 @@ func uploadFile(filename string) {
 	})
 	if err != nil {
 		fmt.Printf("upload file %s failed.\n", completeFileName)
+		<-uploadControl // esvazia o channel
 		return
 	}
 
 	fmt.Printf("File %s uploaded successfully.\n", completeFileName)
+	<-uploadControl // esvazia o channel
 }
