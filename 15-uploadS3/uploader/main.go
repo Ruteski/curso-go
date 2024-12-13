@@ -46,6 +46,19 @@ func main() {
 	// ,100 é pra criar buffer para o channel poder suportar ate 100 informacoes/structs antes de descarregar
 	// controla a quantidade de uploads ativos, no caso as goroutines criadas pra upload
 	uploadControl := make(chan struct{}, 100)
+	errorFileUpload := make(chan string, 10) // ate 10 tentativas de forma simultanea conforme error for chegando
+
+	// aguarda erros serem chegados para retentar enviar
+	go func() {
+		for {
+			select {
+			case filename := <-errorFileUpload:
+				uploadControl <- struct{}{}
+				wg.Add(1)
+				go uploadFile(filename, uploadControl, errorFileUpload)
+			}
+		}
+	}()
 
 	for {
 		files, err := dir.Readdir(1)
@@ -62,12 +75,12 @@ func main() {
 		// criando assim um controle de quantidade de goroutines/uploads realizados simultaneamente
 		uploadControl <- struct{}{}
 
-		go uploadFile(files[0].Name(), uploadControl)
+		go uploadFile(files[0].Name(), uploadControl, errorFileUpload)
 	}
 	wg.Wait()
 }
 
-func uploadFile(filename string, uploadControl <-chan struct{}) {
+func uploadFile(filename string, uploadControl <-chan struct{}, errorFileUpload chan<- string) {
 	defer wg.Done()
 
 	completeFileName := fmt.Sprintf("./tmp/%s", filename)
@@ -76,7 +89,8 @@ func uploadFile(filename string, uploadControl <-chan struct{}) {
 	f, err := os.Open(completeFileName)
 	if err != nil {
 		fmt.Printf("open file %s failed.\n", completeFileName)
-		<-uploadControl // esvazia o channel
+		<-uploadControl                     // esvazia o channel
+		errorFileUpload <- completeFileName // avisa que erro aconteceu pra tentar enviar novamente
 		return
 	}
 	defer f.Close()
@@ -89,7 +103,8 @@ func uploadFile(filename string, uploadControl <-chan struct{}) {
 	})
 	if err != nil {
 		fmt.Printf("upload file %s failed.\n", completeFileName)
-		<-uploadControl // esvazia o channel
+		<-uploadControl                     // esvazia o channel
+		errorFileUpload <- completeFileName // avisa que erro aconteceu pra tentar enviar novamente
 		return
 	}
 
