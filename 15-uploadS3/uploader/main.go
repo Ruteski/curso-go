@@ -1,10 +1,12 @@
 ﻿package main
 
 import (
+	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"os"
 )
 
 var (
@@ -32,5 +34,35 @@ func init() {
 }
 
 func main() {
+	dir, err := os.Open("./tmp")
+	if err != nil {
+		panic(err)
+	}
+	defer dir.Close()
 
+}
+
+func uploadFile(filename string) {
+	completeFileName := fmt.Sprintf("./tmp/%s", filename)
+	fmt.Printf("Uploading file %s to bucket %s\n", completeFileName, s3Bucket)
+
+	f, err := os.Open(completeFileName)
+	if err != nil {
+		fmt.Printf("open file %s failed.\n", completeFileName)
+		return
+	}
+	defer f.Close()
+
+	// subindo arquivo para aws
+	_, err = s3Client.PutObject(&s3.PutObjectInput{
+		Bucket: aws.String(s3Bucket),
+		Key:    aws.String(filename),
+		Body:   f,
+	})
+	if err != nil {
+		fmt.Printf("upload file %s failed.\n", completeFileName)
+		return
+	}
+
+	fmt.Printf("File %s uploaded successfully.\n", completeFileName)
 }
