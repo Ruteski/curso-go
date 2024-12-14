@@ -1,4 +1,6 @@
-﻿package main
+﻿// pra rodar com o wire tem que ser esse comando: go run main.go wire_gen.go
+
+package main
 
 import (
 	"database/sql"
