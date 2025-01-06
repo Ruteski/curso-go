@@ -16,3 +16,4 @@
 # https://github.com/ktr0731/evans
 ### go install github.com/ktr0731/evans@latest
 ### rodar o evans(tem que estar na porta 50051) -> evans -r repl
+### sempre verificar onde esta o serviço >> "pb.OrderService@127.0.0.1:50051>" tem que ter o pg.<service>@
