@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net"
+	"net/http"
 
 	"20-CleanArch/configs"
 	"20-CleanArch/internal/event/handler"
@@ -11,6 +12,15 @@ import (
 	"20-CleanArch/internal/infra/grpc/service"
 	"20-CleanArch/internal/infra/web/webserver"
 	"20-CleanArch/pkg/events"
+
+	"20-CleanArch/internal/infra/graph"
+
+	graphql_handler "github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
+	"github.com/99designs/gqlgen/graphql/handler/lru"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
+	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/vektah/gqlparser/v2/ast"
 
 	"github.com/streadway/amqp"
 	"google.golang.org/grpc"
@@ -60,7 +70,6 @@ func main() {
 	//#region **** gRPC ****
 	grpcServer := grpc.NewServer()
 	orderService := service.NewOrderService(*createOrderUseCase, *listOrderUseCase)
-	//listOrderService := service.ListOrderService(*listOrderUseCase)
 	pb.RegisterOrderServiceServer(grpcServer, orderService)
 	reflection.Register(grpcServer) // ler e processar sua propria informação, usado para o EVANS funcionar
 
@@ -70,18 +79,31 @@ func main() {
 		panic(err)
 	}
 	// cria o webserver em outra thread para não bloquear a execução
-	grpcServer.Serve(lis)
+	go grpcServer.Serve(lis)
 	//#endregion
 
 	//region **** GraphQL ****
-	// srv := graphql_handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
-	// 	CreateOrderUseCase: *createOrderUseCase,
-	// }}))
-	// http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	// http.Handle("/query", srv)
+	srv := graphql_handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
+		CreateOrderUseCase: *createOrderUseCase,
+		ListOrdersUseCase:  *listOrderUseCase,
+	}}))
 
-	// fmt.Println("Starting GraphQL server on port", configs.GraphQLServerPort)
-	// http.ListenAndServe(":"+configs.GraphQLServerPort, nil)
+	srv.AddTransport(transport.Options{})
+	srv.AddTransport(transport.GET{})
+	srv.AddTransport(transport.POST{})
+
+	srv.SetQueryCache(lru.New[*ast.QueryDocument](1000))
+
+	srv.Use(extension.Introspection{})
+	srv.Use(extension.AutomaticPersistedQuery{
+		Cache: lru.New[string](100),
+	})
+
+	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	http.Handle("/query", srv)
+
+	fmt.Println("Starting GraphQL server on port", configs.GraphQLServerPort)
+	http.ListenAndServe(":"+configs.GraphQLServerPort, nil)
 	//#endregion
 }
 

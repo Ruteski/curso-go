@@ -31,7 +31,6 @@ func NewListOrdersUseCase(
 }
 
 func (c *ListOrdersUseCase) Execute() ([]ListOrdersOutputDTO, error) {
-	println("ListOrdersUseCase.Execute CARALHA")
 	orders, err := c.OrderRepository.FindAll()
 	if err != nil {
 		return nil, err
