@@ -26,3 +26,7 @@
 #### remover > CMD ["./server"]
 #### adicionar > FROM scratch (scratch é absolutamente nada, menor imagem possivel) daqui em diante, olhar o arquivo dockerfile.prod
 #### rodar o docker build novamente
+
+### alterar o Dockerfile.prod desabilitando o CGO(CGO - usar libs de c em GO.) - caso nao seja usado nenhuma dependencia de c -> CGO_ENABLED=0
+#### RUN GOOS=linux CGO_ENABLED=0 go build -ldflags="-w -s" -o server .
+#### rodar o docker build
