@@ -10,3 +10,19 @@
 ## redução de tamanho do executavel - utilizando DWARF - debugging with arbitrary record format
 ### binario fica enxuto, mas sem informações de debug
 ### GOOS=linux go build -ldflags="-w -s" -o server-dwarf .
+
+## gerar imagem docker com o app
+### docker build -t ruteski/21-deploy-k8s:lastest -f Dockerfile.prod .
+
+## verificar tamanho da imagem gerada
+### docker images | grep 21-deploy
+
+## rodar a imagem gerada > --rm(deleta o container quando parar de rodar)
+### docker run --rm -p 8080:8080 ruteski/21-deploy-k8s:latest
+
+## docker - multistage build
+### no dockerfile.prod
+#### FROM golang:latest as builder
+#### remover > CMD ["./server"]
+#### adicionar > FROM scratch (scratch é absolutamente nada, menor imagem possivel) daqui em diante, olhar o arquivo dockerfile.prod
+#### rodar o docker build novamente
