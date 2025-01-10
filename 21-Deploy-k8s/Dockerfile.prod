@@ -4,4 +4,5 @@ WORKDIR /app
 
 COPY . .
 
-RUN GOOS=linux go build -o server .
+RUN GOOS=linux go build -ldflags="-w -s" -o server .
+CMD ["./server"]
