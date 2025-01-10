@@ -37,3 +37,9 @@
 ### rodar kubernetes no docker local > https://kind.sigs.k8s.io
 #### go install sigs.k8s.io/kind@v0.26.0
 #### rodar o comando para criar o cluster > kind create cluster --name=goexpert
+#### You can now use your cluster with: kubectl cluster-info --context kind-goexpert
+
+### comandos kubectl
+#### kubectl get nodes
+#### kubectl apply -f k8s/deployment.yaml
+#### kubectl get pods
