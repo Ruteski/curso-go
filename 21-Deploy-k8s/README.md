@@ -43,3 +43,9 @@
 #### kubectl get nodes
 #### kubectl apply -f k8s/deployment.yaml
 #### kubectl get pods
+#### kubectl delete pod server-8495869859-g64dg
+
+### criando service kubernetes
+#### kubectl apply -f k8s/service.yaml
+#### kubectl get svc
+#### kubectl port-forward svc/serversvc 8080:8080
