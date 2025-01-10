@@ -30,3 +30,10 @@
 ### alterar o Dockerfile.prod desabilitando o CGO(CGO - usar libs de c em GO.) - caso nao seja usado nenhuma dependencia de c -> CGO_ENABLED=0
 #### RUN GOOS=linux CGO_ENABLED=0 go build -ldflags="-w -s" -o server .
 #### rodar o docker build
+
+### subir a imagem para o hub
+#### docker push ruteski/21-deploy-k8s:latest
+
+### rodar kubernetes no docker local > https://kind.sigs.k8s.io
+#### go install sigs.k8s.io/kind@v0.26.0
+#### rodar o comando para criar o cluster > kind create cluster --name=goexpert
