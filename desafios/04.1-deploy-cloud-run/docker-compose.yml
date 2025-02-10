@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000" # Expõe a porta 8000 do container para o host
+    environment:
+      - PORT=8000 # Define a porta que a aplicação vai usar
+    command: ./main # Comando para rodar a aplicação
+
+  tests:
+    build: .
+    depends_on:
+      - app
+    command: go test -v # Comando para rodar os testes
