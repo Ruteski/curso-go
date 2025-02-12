@@ -7,7 +7,10 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strconv"
+
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/zipkin"
+	"go.opentelemetry.io/otel/sdk/trace"
 )
 
 type ViaCEPResponse struct {
@@ -31,14 +34,35 @@ type CEPRequest struct {
 	CEP string `json:"cep"`
 }
 
+func initTracer() {
+	exporter, err := zipkin.New("http://localhost:9411/api/v2/spans")
+	if err != nil {
+		fmt.Println("Erro ao configurar o Zipkin exporter:", err)
+		return
+	}
+
+	// Log para verificar se o exporter foi criado
+	fmt.Println("Zipkin exporter configurado com sucesso")
+
+	tp := trace.NewTracerProvider(
+		trace.WithBatcher(exporter),
+	)
+	otel.SetTracerProvider(tp)
+
+	// Log para verificar se o tracer provider foi configurado
+	fmt.Println("Tracer provider configurado com sucesso")
+}
+
 func main() {
+	initTracer()
+
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8000" // Porta padrão caso a variável de ambiente não esteja definida
+		port = "8001"
 	}
 
 	http.HandleFunc("/weather", handleWeatherRequest)
-	fmt.Printf("Servidor rodando na porta %s...\n", port)
+	fmt.Printf("Serviço B rodando na porta %s...\n", port)
 	http.ListenAndServe(":"+port, nil)
 }
 
@@ -58,26 +82,30 @@ func handleWeatherRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cep := cepRequest.CEP
-	if len(cep) != 8 || !isNumeric(cep) {
+	if len(cep) != 8 {
 		http.Error(w, "invalid zipcode", http.StatusUnprocessableEntity)
 		return
 	}
 
+	// Consulta a cidade usando o CEP
 	city, err := getCityFromCEP(cep)
 	if err != nil {
 		http.Error(w, "can not find zipcode", http.StatusNotFound)
 		return
 	}
 
+	// Consulta a temperatura da cidade
 	tempC, err := getTemperature(city)
 	if err != nil {
 		http.Error(w, "failed to get temperature: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// Converte as temperaturas
 	tempF := tempC*1.8 + 32
 	tempK := tempC + 273
 
+	// Retorna a resposta
 	response := TemperatureResponse{
 		City:  city,
 		TempC: tempC,
@@ -144,9 +172,4 @@ func getTemperature(city string) (float64, error) {
 	}
 
 	return weatherAPIResponse.Current.TempC, nil
-}
-
-func isNumeric(s string) bool {
-	_, err := strconv.Atoi(s)
-	return err == nil
 }

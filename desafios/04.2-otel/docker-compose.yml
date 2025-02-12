@@ -8,9 +8,3 @@ services:
     environment:
       - PORT=8000 # Define a porta que a aplicação vai usar
     command: ./main # Comando para rodar a aplicação
-
-  tests:
-    build: .
-    depends_on:
-      - app
-    command: go test -v # Comando para rodar os testes
