@@ -1,10 +1,26 @@
-version: "3.8"
-
 services:
-  app:
-    build: .
+  servicea:  # Nome do serviço em letras minúsculas
+    build:
+      context: ./serviceA  # Caminho para o diretório do serviceA
     ports:
-      - "8000:8000" # Expõe a porta 8000 do container para o host
+      - "8000:8000"
     environment:
-      - PORT=8000 # Define a porta que a aplicação vai usar
-    command: ./main # Comando para rodar a aplicação
+      - PORT=8000
+    depends_on:
+      - serviceb
+      - zipkin
+
+  serviceb:  # Nome do serviço em letras minúsculas
+    build:
+      context: ./serviceB  # Caminho para o diretório do serviceB
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+    depends_on:
+      - zipkin
+
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"

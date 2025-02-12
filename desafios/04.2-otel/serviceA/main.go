@@ -11,6 +11,7 @@ import (
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/zipkin"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/trace"
 )
 
@@ -19,7 +20,8 @@ type CEPRequest struct {
 }
 
 func initTracer() {
-	exporter, err := zipkin.New("http://localhost:9411/api/v2/spans")
+	exporter, err := zipkin.New("http://zipkin:9411/api/v2/spans")
+
 	if err != nil {
 		fmt.Println("Erro ao configurar o Zipkin exporter:", err)
 		return
@@ -32,6 +34,9 @@ func initTracer() {
 		trace.WithBatcher(exporter),
 	)
 	otel.SetTracerProvider(tp)
+
+	// Configura a propagação de contexto
+	otel.SetTextMapPropagator(propagation.TraceContext{})
 
 	// Log para verificar se o tracer provider foi configurado
 	fmt.Println("Tracer provider configurado com sucesso")
@@ -52,7 +57,7 @@ func main() {
 
 func handleCEPRequest(w http.ResponseWriter, r *http.Request) {
 	// Cria um span para rastrear a requisição
-	_, span := otel.Tracer("servicoA").Start(r.Context(), "handleCEPRequest")
+	ctx, span := otel.Tracer("servicoA").Start(r.Context(), "handleCEPRequest")
 	defer span.End()
 
 	// Log para verificar se o span foi criado
@@ -86,15 +91,26 @@ func handleCEPRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Encaminha o CEP para o Serviço B
-	resp, err := http.Post("http://localhost:8001/weather", "application/json", bytes.NewBuffer(body))
+	// Cria um span para medir o tempo de resposta do Serviço B
+	_, spanB := otel.Tracer("servicoA").Start(ctx, "callServicoB")
+	defer spanB.End()
+
+	req, err := http.NewRequestWithContext(ctx, "POST", "http://serviceb:8001/weather", bytes.NewBuffer(body))
+	if err != nil {
+		http.Error(w, "Erro ao criar requisição para o Serviço B", http.StatusInternalServerError)
+		return
+	}
+
+	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
 	if err != nil {
 		http.Error(w, "Erro ao encaminhar para o Serviço B", http.StatusInternalServerError)
 		return
 	}
 	defer resp.Body.Close()
 
-	// Retorna a resposta do Serviço B
 	w.Header().Set("Content-Type", "application/json")
 	io.Copy(w, resp.Body)
 }

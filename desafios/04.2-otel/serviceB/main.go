@@ -35,7 +35,8 @@ type CEPRequest struct {
 }
 
 func initTracer() {
-	exporter, err := zipkin.New("http://localhost:9411/api/v2/spans")
+	exporter, err := zipkin.New("http://zipkin:9411/api/v2/spans")
+
 	if err != nil {
 		fmt.Println("Erro ao configurar o Zipkin exporter:", err)
 		return
@@ -67,13 +68,14 @@ func main() {
 }
 
 func handleWeatherRequest(w http.ResponseWriter, r *http.Request) {
-	// Verifica se o método da requisição é POST
+	ctx, span := otel.Tracer("servicoB").Start(r.Context(), "handleWeatherRequest")
+	defer span.End()
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
 		return
 	}
 
-	// Lê o corpo da requisição
 	var cepRequest CEPRequest
 	err := json.NewDecoder(r.Body).Decode(&cepRequest)
 	if err != nil {
@@ -87,25 +89,27 @@ func handleWeatherRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Consulta a cidade usando o CEP
+	// Cria um span para medir o tempo de resposta da busca de CEP
+	_, spanCEP := otel.Tracer("servicoB").Start(ctx, "getCityFromCEP")
 	city, err := getCityFromCEP(cep)
+	spanCEP.End()
 	if err != nil {
 		http.Error(w, "can not find zipcode", http.StatusNotFound)
 		return
 	}
 
-	// Consulta a temperatura da cidade
+	// Cria um span para medir o tempo de resposta da busca de temperatura
+	_, spanTemp := otel.Tracer("servicoB").Start(ctx, "getTemperature")
 	tempC, err := getTemperature(city)
+	spanTemp.End()
 	if err != nil {
 		http.Error(w, "failed to get temperature: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// Converte as temperaturas
 	tempF := tempC*1.8 + 32
 	tempK := tempC + 273
 
-	// Retorna a resposta
 	response := TemperatureResponse{
 		City:  city,
 		TempC: tempC,
