@@ -1,15 +1,18 @@
-package resterr
+package rest_err
 
-import "net/http"
+import (
+	"auction_go/internal/internal_error"
+	"net/http"
+)
 
 type RestErr struct {
-	Message string  `json:"message"`
-	Err     string  `json:"error"`
-	Code    int     `json:"code"`
-	Causes  []Cause `json:"causes"`
+	Message string   `json:"message"`
+	Err     string   `json:"err"`
+	Code    int      `json:"code"`
+	Causes  []Causes `json:"causes"`
 }
 
-type Cause struct {
+type Causes struct {
 	Field   string `json:"field"`
 	Message string `json:"message"`
 }
@@ -18,12 +21,23 @@ func (r *RestErr) Error() string {
 	return r.Message
 }
 
-func NewBadRequestError(message string) *RestErr {
+func ConvertError(internalError *internal_error.InternalError) *RestErr {
+	switch internalError.Err {
+	case "bad_request":
+		return NewBadRequestError(internalError.Error())
+	case "not_found":
+		return NewNotFoundError(internalError.Error())
+	default:
+		return NewInternalServerError(internalError.Error())
+	}
+}
+
+func NewBadRequestError(message string, causes ...Causes) *RestErr {
 	return &RestErr{
 		Message: message,
 		Err:     "bad_request",
 		Code:    http.StatusBadRequest,
-		Causes:  nil,
+		Causes:  causes,
 	}
 }
 
