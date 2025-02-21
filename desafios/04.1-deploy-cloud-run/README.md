@@ -46,3 +46,23 @@ docker-compose up tests
 ```bash
 docker-compose down
 ```
+
+## Passo 5: Deploy Google Cloud
+
+Este é o passo a passo para criar uma conta no Google Cloud e realizar o deploy do projeto.
+
+### 5.1: Criar uma Conta no Google Cloud
+
+1. Acesse o [Google Cloud Console](https://console.cloud.google.com/).
+
+2. Se você não tiver uma conta, clique em **Criar Conta**.
+
+3. Complete o cadastro com seu e-mail e informações solicitadas.
+
+4. Após a criação, você terá acesso a um **Crédito de $300** por 90 dias, o que é suficiente para completar este desafio.
+
+### 5.2: Ativar o Faturamento no Google Cloud
+
+1. No Console do Google Cloud, vá para **Faturamento**.
+
+2. Clique em **Ativar faturamento** e siga as instruções para configurar a conta de faturamento.
